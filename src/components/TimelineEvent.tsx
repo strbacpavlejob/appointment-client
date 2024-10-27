@@ -21,9 +21,9 @@ export const TimelineEvent: React.FC<TimelineEventProps> = ({
     setShowModal(false);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (event) {
-      onDelete(event.id);
+      await onDelete(event.id);
     }
     setShowModal(false);
   };
@@ -33,12 +33,12 @@ export const TimelineEvent: React.FC<TimelineEventProps> = ({
       {event && (
         <div
           className={`absolute inset-x-1 ${
-            dayjs(event.startDate).isBefore(dayjs(), "minute") &&
-            dayjs(event.startDate)
+            dayjs(event.startDate, "HH:mm").isBefore(dayjs(), "minute") &&
+            dayjs(event.startDate, "HH:mm")
               .add(event.duration, "minutes")
               .isAfter(dayjs(), "minute")
               ? "bg-orange-500"
-              : dayjs(event.startDate).isBefore(dayjs())
+              : dayjs(event.startDate, "HH:mm").isBefore(dayjs())
               ? "bg-gray-400"
               : "bg-blue-500"
           } text-white text-sm flex items-center justify-center py-2 px-4 rounded-md shadow-md z-10 cursor-pointer`}

@@ -11,13 +11,13 @@ const App = () => {
   useEffect(() => {
     fetchData();
   }, [selectedDate]);
-
   const fetchData = async () => {
     try {
+      const formattedDate = selectedDate.toISOString();
       const response = await axios.get(
         `http://localhost:3000/appointments/by-date`,
         {
-          params: { date: selectedDate },
+          params: { selectedDate: formattedDate },
         }
       );
       setData(response.data);
@@ -32,7 +32,7 @@ const App = () => {
         onSuccess={async () => await fetchData()}
         setSelectedDate={setSelectedDate}
       />
-      <Timeline data={data} />
+      <Timeline data={data} onSuccess={async () => await fetchData()} />
     </div>
   );
 };
