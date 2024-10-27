@@ -2,51 +2,44 @@ import React from "react";
 import { TimelineEvent } from "./TimelineEvent";
 import { Event } from "../types/event";
 import dayjs from "dayjs";
+import axios from "axios";
 
-const data = [
-  {
-    id: "1234",
-    startDate: "2024-10-27T19:13:38.790Z",
-    duration: 60,
-    patientName: "Alice",
-    description: "check-up",
-  },
-  {
-    id: "1235",
-    startDate: "2024-10-27T18:13:38.790Z",
-    duration: 30,
-    patientName: "Bob",
-    description: "vaccination",
-  },
-  {
-    id: "1236",
-    startDate: "2024-10-27T17:13:38.790Z",
-    duration: 30,
-    patientName: "Sue",
-    description: "Blood test",
-  },
-];
+interface TimelineProps {
+  onSuccess?: () => void;
+  data: Event[];
+}
 
-const events: Event[] = data.map((item) => ({
-  id: item.id,
-  time: dayjs(new Date(item.startDate)).format("HH:mm").toString(),
-  title: item.patientName,
-  color: "bg-blue-500",
-  duration: item.duration,
-}));
+const Timeline: React.FC<TimelineProps> = ({ data, onSuccess }) => {
+  const events: Event[] = data.map((item) => ({
+    id: item.id,
+    startDate: dayjs(new Date(item.startDate)).format("HH:mm").toString(),
+    patientName: `${item.patientName} - ${item.description}`,
+    duration: item.duration,
+    description: item.description,
+  }));
 
-data.forEach((element) => {
-  console.log(dayjs(new Date(element.startDate)).format("HH:mm").toString());
-});
-
-const Timeline: React.FC = () => {
-  const times = Array.from({ length: 48 }).map((_, index) => {
+  const times = Array.from({ length: 50 }).map((_, index) => {
     return dayjs()
       .startOf("day")
       .add(index * 30, "minute")
       .format("HH:mm")
       .toString();
   });
+
+  const handleDelete = async (eventId: string) => {
+    try {
+      await axios.delete(
+        `http://localhost:3000/appointments/cancel/${eventId}`
+      );
+      if (onSuccess) onSuccess();
+    } catch (error) {
+      alert(
+        `An error occurred while submitting the form:": ${JSON.stringify(
+          error
+        )}`
+      );
+    }
+  };
 
   return (
     <div className="max-w-4xl mx-auto bg-white shadow-md rounded-lg overflow-hidden">
@@ -64,8 +57,14 @@ const Timeline: React.FC = () => {
         </div>
         <div className="col-span-10">
           {times.map((time, index) => {
-            const event = events.find((e) => e.time === time);
-            return <TimelineEvent key={index} event={event} />;
+            const event = events.find((e) => e.startDate === time);
+            return (
+              <TimelineEvent
+                key={index}
+                event={event || undefined}
+                onDelete={handleDelete}
+              />
+            );
           })}
         </div>
       </div>

@@ -1,6 +1,7 @@
 export type Event = {
-  time: string;
-  color: string;
+  id: string;
+  startDate: string;
   duration: number;
-  title: string;
+  patientName: string;
+  description: string;
 };
