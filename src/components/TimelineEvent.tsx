@@ -28,20 +28,36 @@ export const TimelineEvent: React.FC<TimelineEventProps> = ({
     setShowModal(false);
   };
 
+  const getEventColor = (event: Event) => {
+    if (!event) {
+      return "";
+    }
+    const now = dayjs();
+    const [hours, minutes] = event.startDate.split(":").map(Number);
+
+    const eventStart = now
+      .set("hour", hours)
+      .set("minute", minutes)
+      .set("second", 0)
+      .set("millisecond", 0);
+    const eventEnd = eventStart.add(event.duration, "minutes");
+
+    if (eventStart.isBefore(now, "minute") && eventEnd.isAfter(now, "minute")) {
+      return "bg-orange-500";
+    } else if (eventEnd.isBefore(now, "minute")) {
+      return "bg-gray-400";
+    } else {
+      return "bg-blue-500";
+    }
+  };
+
   return (
     <div className="relative flex items-center h-10 border-b border-gray-200">
       {event && (
         <div
-          className={`absolute inset-x-1 ${
-            dayjs(event.startDate, "HH:mm").isBefore(dayjs(), "minute") &&
-            dayjs(event.startDate, "HH:mm")
-              .add(event.duration, "minutes")
-              .isAfter(dayjs(), "minute")
-              ? "bg-orange-500"
-              : dayjs(event.startDate, "HH:mm").isBefore(dayjs())
-              ? "bg-gray-400"
-              : "bg-blue-500"
-          } text-white text-sm flex items-center justify-center py-2 px-4 rounded-md shadow-md z-10 cursor-pointer`}
+          className={`absolute inset-x-1 ${getEventColor(
+            event
+          )} text-white text-sm flex items-center justify-center py-2 px-4 rounded-md shadow-md z-10 cursor-pointer`}
           style={{
             height: `${(event.duration / 30) * 2.5}rem`, // Adjust the height based on the duration
             top: "0",
